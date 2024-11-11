@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Einheiten-Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #f0f0f0;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #ffffff;
+        }
+        .unit-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .unit-row select, .unit-row input {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #444;
+            color: #f0f0f0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            background-color: #5a8ff0;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4a7ed0;
+        }
+        #output {
+            margin-top: 20px;
+            font-family: monospace;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>LaTeX Einheiten-Creator</h1>
+
+    <div id="unit-rows">
+        <div class="unit-row">
+            <select class="prefix">
+                <option value="">Kein Präfix</option>
+                <option value="\\nano">n (Nano 10⁻⁹)</option>
+                <option value="\\micro">µ (Mikro 10⁻⁶)</option>
+                <option value="\\milli">m (Milli 10⁻³)</option>
+                <option value="\\centi">c (Zenti 10⁻²)</option>
+                <option value="\\deci">d (Dezi 10⁻¹)</option>
+                <option value="\\deca">da (Deka 10¹)</option>
+                <option value="\\hecto">h (Hekto 10²)</option>
+                <option value="\\kilo">k (Kilo 10³)</option>
+                <option value="\\mega">M (Mega 10⁶)</option>
+                <option value="\\yocto">y (Yocto 10⁻²⁴)</option>
+                <option value="\\zepto">z (Zepto 10⁻²¹)</option>
+                <option value="\\atto">a (Atto 10⁻¹⁸)</option>
+                <option value="\\femto">f (Femto 10⁻¹⁵)</option>
+                <option value="\\pico">p (Piko 10⁻¹²)</option>
+                <option value="\\giga">G (Giga 10⁹)</option>
+                <option value="\\tera">T (Tera 10¹²)</option>
+                <option value="\\peta">P (Peta 10¹⁵)</option>
+                <option value="\\exa">E (Exa 10¹⁸)</option>
+                <option value="\\zetta">Z (Zetta 10²¹)</option>
+                <option value="\\yotta">Y (Yotta 10²⁴)</option>                               
+            </select>
+            <select class="unit">
+                <option value="\\meter">m (Meter)</option>
+                <option value="\\gram">g (Gramm)</option>
+                <option value="\\liter">L (Liter)</option>
+                <option value="\\second">s (Sekunde)</option>
+                <option value="\\mole">mol (Mol)</option>
+                <option value="\\joule">J (Joule)</option>
+                <option value="\\kelvin">K (Kelvin)</option>
+                <option value="\\celsius">°C (Grad Celsius)</option>
+                <option value="\\pascal">Pa (Pascal)</option>
+                <option value="\\watt">W (Watt)</option>
+                <option value="\\newton">N (Newton)</option>
+                <option value="\\volt">V (Volt)</option>
+                <option value="\\ampere">A (Ampere)</option>
+                <option value="\\ohm">Ω (Ohm)</option>
+                <option value="\\coulomb">C (Coulomb)</option>
+                <option value="\\farad">F (Farad)</option>
+                <option value="\\henry">H (Henry)</option>
+                <option value="\\tesla">T (Tesla)</option>
+                <option value="\\becquerel">Bq (Becquerel)</option>
+                <option value="\\gray">Gy (Gray)</option>
+                <option value="\\sievert">Sv (Sievert)</option>
+                <option value="\\hertz">Hz (Hertz)</option>
+                <option value="\\lux">lx (Lux)</option>
+                <option value="\\lumen">lm (Lumen)</option>
+                <option value="\\weber">Wb (Weber)</option>
+                <option value="\\candela">cd (Candela)</option>
+                <option value="\\radian">rad (Radiant)</option>
+                <option value="\\steradian">sr (Steradiant)</option>
+                <option value="\\minute">min (Minute)</option>
+                <option value="\\hour">h (Stunde)</option>
+                <option value="\\day">d (Tag)</option>
+                <option value="\\tonne">t (Tonne)</option>                
+            </select>
+            <input type="number" class="exponent" placeholder="Potenz">
+            <button onclick="removeRow(this)">Entfernen</button>
+        </div>
+    </div>
+
+    <button onclick="addRow()">Zeile hinzufügen</button>
+    <button onclick="generateLatexCode()">Generate LaTeX Code</button>
+
+    <div id="output" class="output-field"></div>
+
+    <script>
+        function addRow() {
+            const rowContainer = document.getElementById("unit-rows");
+            const newRow = document.createElement("div");
+            newRow.classList.add("unit-row");
+
+            newRow.innerHTML = `
+                <select class="prefix">
+                    <option value="">Kein Präfix</option>
+                    <option value="\\nano">n (Nano 10⁻⁹)</option>
+                    <option value="\\micro">µ (Mikro 10⁻⁶)</option>
+                    <option value="\\milli">m (Milli 10⁻³)</option>
+                    <option value="\\centi">c (Zenti 10⁻²)</option>
+                    <option value="\\deci">d (Dezi 10⁻¹)</option>
+                    <option value="\\deca">da (Deka 10¹)</option>
+                    <option value="\\hecto">h (Hekto 10²)</option>
+                    <option value="\\kilo">k (Kilo 10³)</option>
+                    <option value="\\mega">M (Mega 10⁶)</option>
+                    <option value="\\yocto">y (Yocto 10⁻²⁴)</option>
+                    <option value="\\zepto">z (Zepto 10⁻²¹)</option>
+                    <option value="\\atto">a (Atto 10⁻¹⁸)</option>
+                    <option value="\\femto">f (Femto 10⁻¹⁵)</option>
+                    <option value="\\pico">p (Piko 10⁻¹²)</option>
+                    <option value="\\giga">G (Giga 10⁹)</option>
+                    <option value="\\tera">T (Tera 10¹²)</option>
+                    <option value="\\peta">P (Peta 10¹⁵)</option>
+                    <option value="\\exa">E (Exa 10¹⁸)</option>
+                    <option value="\\zetta">Z (Zetta 10²¹)</option>
+                    <option value="\\yotta">Y (Yotta 10²⁴)</option>                               
+                </select>
+                <select class="unit">
+                    <option value="\\meter">m (Meter)</option>
+                    <option value="\\gram">g (Gramm)</option>
+                    <option value="\\liter">L (Liter)</option>
+                    <option value="\\second">s (Sekunde)</option>
+                    <option value="\\mole">mol (Mol)</option>
+                    <option value="\\joule">J (Joule)</option>
+                    <option value="\\kelvin">K (Kelvin)</option>
+                    <option value="\\celsius">°C (Grad Celsius)</option>
+                    <option value="\\pascal">Pa (Pascal)</option>
+                    <option value="\\watt">W (Watt)</option>
+                    <option value="\\newton">N (Newton)</option>
+                    <option value="\\volt">V (Volt)</option>
+                    <option value="\\ampere">A (Ampere)</option>
+                    <option value="\\ohm">Ω (Ohm)</option>
+                    <option value="\\coulomb">C (Coulomb)</option>
+                    <option value="\\farad">F (Farad)</option>
+                    <option value="\\henry">H (Henry)</option>
+                    <option value="\\tesla">T (Tesla)</option>
+                    <option value="\\becquerel">Bq (Becquerel)</option>
+                    <option value="\\gray">Gy (Gray)</option>
+                    <option value="\\sievert">Sv (Sievert)</option>
+                    <option value="\\hertz">Hz (Hertz)</option>
+                    <option value="\\lux">lx (Lux)</option>
+                    <option value="\\lumen">lm (Lumen)</option>
+                    <option value="\\weber">Wb (Weber)</option>
+                    <option value="\\candela">cd (Candela)</option>
+                    <option value="\\radian">rad (Radiant)</option>
+                    <option value="\\steradian">sr (Steradiant)</option>
+                    <option value="\\minute">min (Minute)</option>
+                    <option value="\\hour">h (Stunde)</option>
+                    <option value="\\day">d (Tag)</option>
+                    <option value="\\tonne">t (Tonne)</option>                
+                </select>
+                <input type="number" class="exponent" placeholder="Potenz">
+                <button onclick="removeRow(this)">Entfernen</button>
+            `;
+            rowContainer.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            button.parentElement.remove();
+        }
+
+        function generateLatexCode() {
+            const rows = document.querySelectorAll(".unit-row");
+            let units = "";
+
+            rows.forEach(row => {
+                const prefix = row.querySelector(".prefix").value;
+                const unit = row.querySelector(".unit").value;
+                const exponent = row.querySelector(".exponent").value;
+
+                units += `${prefix}${unit}`;
+                if (exponent && exponent != "1") {
+                    units += `\\tothe{${exponent}} `;
+                } else {
+                    units += " ";
+                }
+            });
+
+            units = units.replace(/\\\\/g, "\\");  // Entferne doppelte Backslashes
+
+            const latexCode = `\\SI{}{${units.trim()}}`;
+
+            // Zeige den generierten LaTeX-Code an
+            document.getElementById("output").innerText = latexCode;
+
+            // Kopiere den LaTeX-Code in die Zwischenablage
+            navigator.clipboard.writeText(latexCode).then(() => {
+                alert("LaTeX-Code wurde automatisch in die Zwischenablage kopiert.");
+            }).catch(err => {
+                console.error('Fehler beim Kopieren in die Zwischenablage: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
