@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Formelzeichen-Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #f0f0f0;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #ffffff;
+        }
+        .symbol-field {
+            display: grid;
+            grid-template-areas: 
+                "sup-before main sup-after"
+                "sub-before main sub-after";
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .symbol-field input {
+            width: 250px;
+            padding: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            border-radius: 5px;
+            border: none;
+            background-color: #444;
+            color: #f0f0f0;
+        }
+        #main-symbol {
+            grid-area: main;
+            width: 300px;
+            font-size: 1.5em;
+            background-color: #555;
+        }
+        #sup-before { grid-area: sup-before; }
+        #sub-before { grid-area: sub-before; }
+        #sup-after { grid-area: sup-after; }
+        #sub-after { grid-area: sub-after; }
+
+        .dropdown-symbol {
+            margin: 20px;
+        }
+        .dropdown-symbol select {
+            font-size: 1em;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #444;
+            color: #f0f0f0;
+        }
+        .greek-keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .greek-keyboard button {
+            font-size: 1em;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #555;
+            color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .greek-keyboard button:hover {
+            background-color: #666;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            background-color: #5a8ff0;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4a7ed0;
+        }
+        #output, #preview {
+            margin-top: 20px;
+            font-family: monospace;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            color: #f0f0f0;
+        }
+    </style>
+    <!-- MathJax Script -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <h1>LaTeX Formelgenerator</h1>
+
+    <div class="symbol-field">
+        <input type="text" id="sup-before" placeholder="Hochgestellt Links" onfocus="setActiveField(this)">
+        <input type="text" id="sub-before" placeholder="Tiefgestellt Links" onfocus="setActiveField(this)">
+        <input type="text" id="main-symbol" placeholder="Symbol" onfocus="setActiveField(this)">
+        <input type="text" id="sup-after" placeholder="Hochgestellt Rechts" onfocus="setActiveField(this)">
+        <input type="text" id="sub-after" placeholder="Tiefgestellt Rechts" onfocus="setActiveField(this)">
+    </div>
+
+    <div class="dropdown-symbol">
+        <label for="symbol-select">Sonderzeichen:</label>
+        <select id="symbol-select">
+            <option value="">Kein Symbol</option>
+            <option value="\tilde">~ (Tilde)</option>
+            <option value="\bar">¯ (Gerader Strich)</option>
+            <option value="\dot">• (Punkt)</option>
+            <option value="\hat">^ (Dach)</option>
+            <option value="\vec">→ (Vektor-Pfeil)</option>
+            <option value="\ddot">¨ (Doppelpunkt)</option>
+            <option value="\breve">˘ (Breve)</option>
+            <option value="\check">ˇ (Haken)</option>
+            <option value="\acute">´ (Akut)</option>
+            <option value="\grave">` (Gravis)</option>
+            <option value="\mathring">° (Ring)</option>
+            <option value="\overline">¯ (Überstrich)</option>
+            <option value="\underline">_ (Unterstrich)</option>
+        </select>
+    </div>
+
+    <!-- Griechische Buchstaben Tastatur -->
+    <div class="greek-keyboard">
+        <!-- Kleinbuchstaben -->
+        <button onclick="insertSymbol('α')">α</button>
+        <button onclick="insertSymbol('β')">β</button>
+        <button onclick="insertSymbol('γ')">γ</button>
+        <button onclick="insertSymbol('δ')">δ</button>
+        <button onclick="insertSymbol('ε')">ε</button>
+        <button onclick="insertSymbol('ζ')">ζ</button>
+        <button onclick="insertSymbol('η')">η</button>
+        <button onclick="insertSymbol('θ')">θ</button>
+        <button onclick="insertSymbol('ι')">ι</button>
+        <button onclick="insertSymbol('κ')">κ</button>
+        <button onclick="insertSymbol('λ')">λ</button>
+        <button onclick="insertSymbol('μ')">μ</button>
+        <button onclick="insertSymbol('ν')">ν</button>
+        <button onclick="insertSymbol('ξ')">ξ</button>
+        <button onclick="insertSymbol('π')">π</button>
+        <button onclick="insertSymbol('ρ')">ρ</button>
+        <button onclick="insertSymbol('σ')">σ</button>
+        <button onclick="insertSymbol('τ')">τ</button>
+        <button onclick="insertSymbol('υ')">υ</button>
+        <button onclick="insertSymbol('φ')">φ</button>
+        <button onclick="insertSymbol('χ')">χ</button>
+        <button onclick="insertSymbol('ψ')">ψ</button>
+        <button onclick="insertSymbol('ω')">ω</button>
+        <button onclick="insertSymbol('ϵ')">ϵ</button>
+        <button onclick="insertSymbol('ϑ')">ϑ</button>
+        <button onclick="insertSymbol('ϖ')">ϖ</button>
+        <button onclick="insertSymbol('ϱ')">ϱ</button>
+        <button onclick="insertSymbol('ς')">ς</button>
+        <button onclick="insertSymbol('ϕ')">ϕ</button>
+
+        <!-- Großbuchstaben -->
+        <button onclick="insertSymbol('Γ')">Γ</button>
+        <button onclick="insertSymbol('Δ')">Δ</button>
+        <button onclick="insertSymbol('Θ')">Θ</button>
+        <button onclick="insertSymbol('Λ')">Λ</button>
+        <button onclick="insertSymbol('Ξ')">Ξ</button>
+        <button onclick="insertSymbol('Π')">Π</button>
+        <button onclick="insertSymbol('Σ')">Σ</button>
+        <button onclick="insertSymbol('Υ')">Υ</button>
+        <button onclick="insertSymbol('Φ')">Φ</button>
+        <button onclick="insertSymbol('Ψ')">Ψ</button>
+        <button onclick="insertSymbol('Ω')">Ω</button>
+    </div>
+
+    <!-- Button zum Generieren des LaTeX Codes -->
+    <button onclick="generateLatexCode()">Generate LaTeX Code</button>
+
+    <!-- Ausgabe des LaTeX Codes -->
+    <div id="output" class="output-field"></div>
+    <!-- Vorschau des LaTeX Codes -->
+    <div id="preview" class="output-field"></div>
+
+    <script>
+        let activeElement = null;
+        let cursorPos = 0;
+
+        function setActiveField(element) {
+            activeElement = element;
+            cursorPos = element.selectionStart;
+            element.addEventListener('keyup', updateCursorPos);
+        }
+
+        function updateCursorPos(event) {
+            cursorPos = event.target.selectionStart;
+        }
+
+        const greekToLatex = {
+            "α": "\\alpha", "β": "\\beta", "γ": "\\gamma", "δ": "\\delta", "ε": "\\epsilon",
+            "ζ": "\\zeta", "η": "\\eta", "θ": "\\theta", "ι": "\\iota", "κ": "\\kappa",
+            "λ": "\\lambda", "μ": "\\mu", "ν": "\\nu", "ξ": "\\xi", 
+            "π": "\\pi", "ρ": "\\rho", "σ": "\\sigma", "τ": "\\tau", "υ": "\\upsilon",
+            "φ": "\\varphi", "χ": "\\chi", "ψ": "\\psi", "ω": "\\omega",
+            "ϵ": "\\varepsilon", "ϑ": "\\vartheta", "ϖ": "\\varpi", "ϱ": "\\varrho",
+            "ς": "\\varsigma", "ϕ": "\\phi",
+            "Γ": "\\Gamma", "Δ": "\\Delta", "Θ": "\\Theta", "Λ": "\\Lambda", "Ξ": "\\Xi",
+            "Π": "\\Pi", "Σ": "\\Sigma", "Υ": "\\Upsilon", "Φ": "\\Phi", "Ψ": "\\Psi", "Ω": "\\Omega"
+        };
+
+        function insertSymbol(symbol) {
+            if (activeElement) {
+                const latexSymbol = greekToLatex[symbol] || symbol;
+                const currentValue = activeElement.value;
+                activeElement.value = currentValue.slice(0, cursorPos) + latexSymbol + currentValue.slice(cursorPos);
+                cursorPos += latexSymbol.length;
+                activeElement.setSelectionRange(cursorPos, cursorPos);
+                activeElement.focus();
+            } else {
+                alert("Bitte zuerst ein Eingabefeld auswählen.");
+            }
+        }
+
+        function generateLatexCode() {
+            const mainSymbol = document.getElementById("main-symbol").value;
+            const supBefore = document.getElementById("sup-before").value;
+            const subBefore = document.getElementById("sub-before").value;
+            const supAfter = document.getElementById("sup-after").value;
+            const subAfter = document.getElementById("sub-after").value;
+            const selectedSymbol = document.getElementById("symbol-select").value;
+
+            let latexCode = "$";
+            if (subBefore || supBefore) {
+                latexCode += "_{" + subBefore + "}^{" + supBefore + "}";
+            }
+            latexCode += selectedSymbol ? selectedSymbol + "{" + mainSymbol + "}" : mainSymbol;
+            if (subAfter || supAfter) {
+                latexCode += "_{" + subAfter + "}^{" + supAfter + "}";
+            }
+            latexCode += "$";
+
+            // Anzeige des LaTeX-Codes im Rohformat
+            document.getElementById("output").innerText = latexCode;
+
+            // MathJax-Rendering der Vorschau
+            document.getElementById("preview").innerHTML = latexCode;
+            MathJax.typesetPromise([document.getElementById("preview")]);
+
+            // Kopieren des LaTeX-Codes in die Zwischenablage
+            navigator.clipboard.writeText(latexCode).then(() => {
+                alert("LaTeX-Code wurde automatisch in die Zwischenablage kopiert.");
+            }).catch(err => {
+                console.error('Fehler beim Kopieren in die Zwischenablage: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
