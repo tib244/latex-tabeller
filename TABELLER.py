@@ -109,24 +109,21 @@ class LatexTabellerApp:
 
     def load_excel_data(self, file_path):
         try:
-            self.df = pd.read_excel(file_path, header=None)
-            header_row = 5
-            selected_columns = [0]
+            # Lese die Datei ein und setze die erste Zeile als Header
+            self.df = pd.read_excel(file_path, header=0)
+        
+            # Wähle alle Spalten für die Tabelle
+            headers = self.df.columns
+            data = self.df
 
-            for col in range(1, 20):
-                if any(pd.notna(self.df.iloc[row, col]) for row in range(2, 5)):
-                    selected_columns.append(col)
-
-            headers = self.df.iloc[header_row, selected_columns]
-            data = self.df.iloc[header_row + 1:, selected_columns]
-            data = data.fillna("")
-
+            # Aktualisiere die Anzeige in der GUI und erstelle den LaTeX-Code
             self.update_table(headers, data)
             self.extract_formula_from_headers(headers)
             self.generate_latex_code(headers, data)
 
         except Exception as e:
             messagebox.showerror("Fehler", f"Fehler beim Laden der Excel-Datei: {str(e)}")
+
 
     def update_table(self, headers, data):
         for col in self.tree["columns"]:
@@ -318,4 +315,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = LatexTabellerApp(root)
     root.mainloop()
-
