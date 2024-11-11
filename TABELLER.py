@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import webbrowser
 
+
 class LatexTabellerApp:
     def __init__(self, root):
         self.root = root
@@ -265,20 +266,20 @@ class LatexTabellerApp:
 
     
     def generate_latex_code(self):
-        # Generiere den LaTeX-Code basierend auf den aktuellen Headern, zusätzlichen Eingabefeldern und Beschreibungen
+        # Erstelle die Header und ignoriere Platzhaltertexte
         headers = [
-            f"{formula_entry.get()} / {unit_entry.get()}".strip(" /")
+            f"{formula_entry.get() if formula_entry.get() != 'Formelzeichen' else ''} / {unit_entry.get() if unit_entry.get() != 'Einheit' else ''}".strip(" /")
             for formula_entry, unit_entry in self.additional_entries
         ]
         
         # Beginne mit dem LaTeX-Code für die Tabelle und Beschreibung
         general_description = self.general_description_entry.get()
         
-        # Verwende das erste Eingabefeld (Formelzeichen) für die Beschreibung
+        # Beschreibungen mit `Formelzeichen` und `Beschreibung` ignorieren, wenn sie nur Platzhalter sind
         header_descriptions = [
             f"{formula_entry.get()}: {desc_entry.get()}"
             for (formula_entry, unit_entry), desc_entry in zip(self.additional_entries, self.header_descriptions)
-            if desc_entry.get()
+            if formula_entry.get() != "Formelzeichen" and desc_entry.get() != "Beschreibung" and desc_entry.get()
         ]
 
         # LaTeX-Struktur
@@ -288,7 +289,7 @@ class LatexTabellerApp:
         if general_description:
             self.latex_code += f"\\caption{{{general_description} \\\\\n"
         else:
-            self.latex_code += "\\caption{"
+            self.latex_code += "\\caption{" 
 
         # Header-Details hinzufügen, falls vorhanden
         if header_descriptions:
@@ -298,8 +299,8 @@ class LatexTabellerApp:
 
         self.latex_code += "\\begin{tabular}{" + "c" * len(headers) + "}\n\\toprule\n"
         
-        # Header-Zeile in den LaTeX-Code einfügen
-        header_row = " & ".join(headers) + " \\\\ \n\\midrule\n"
+        # Header-Zeile in den LaTeX-Code einfügen und leere Werte entfernen
+        header_row = " & ".join(header if header else "" for header in headers) + " \\\\ \n\\midrule\n"
         self.latex_code += header_row
 
         # Datenzeilen aus der Tabelle hinzufügen
