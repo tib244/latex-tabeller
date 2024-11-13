@@ -1,0 +1,2 @@
+- Tabelle auf A4 anpassen/strecken können$
+- Titel in Feld oder oberhalb für eingabe
