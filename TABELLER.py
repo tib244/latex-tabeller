@@ -16,6 +16,7 @@ class LatexTabellerApp:
         self.file_name = None
         self.df = None
         self.latex_code = ""
+        self.a4_latex_code = ""  # Separate variable for A4 width LaTeX code
         self.header_labels = []  # Labels to display header names
         self.additional_entries = []  # List to store additional Entry widgets for each header
         self.header_descriptions = []  # Store descriptions for each header
@@ -66,19 +67,9 @@ class LatexTabellerApp:
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=4, column=3, sticky="ns")
 
-        # Frame für zusätzliche Eingabefelder unterhalb der Tabelle und oberhalb der Beschreibungstitel
+        # Frame für zusätzliche Eingabefelder unterhalb der Tabelle
         self.additional_frame = tk.Frame(self.root, bg="#ecf0f1")
-        self.additional_frame.pack(fill=tk.X, padx=20, pady=(20, 5))  # Extra Padding zum Verschieben
-
-        # Titel für die Eingabefelder unterhalb der Tabelle
-        title_label_formula = tk.Label(self.additional_frame, text="Formelzeichen", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_formula.grid(row=0, column=1, sticky="w", padx=5, pady=(10, 5))
-
-        title_label_unit = tk.Label(self.additional_frame, text="Einheit", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_unit.grid(row=0, column=2, sticky="w", padx=5, pady=(10, 5))
-
-        title_label_description = tk.Label(self.additional_frame, text="Beschreibung", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_description.grid(row=0, column=3, sticky="w", padx=5, pady=(10, 5))
+        self.additional_frame.pack(fill=tk.X, padx=20, pady=(20, 5))
 
         # Buttons unterhalb der Eingabefelder
         self.show_latex_button = ttk.Button(main_frame, text="LaTeX Code anzeigen", command=self.show_latex_code)
@@ -90,6 +81,10 @@ class LatexTabellerApp:
         self.save_button = ttk.Button(main_frame, text=".tex Datei speichern", command=self.save_as_tex)
         self.save_button.grid(row=7, column=0, pady=10, padx=10, sticky="w")
 
+        # Button zum Kopieren des LaTeX-Codes in A4-Breite
+        self.a4_button = ttk.Button(main_frame, text="A4 Breite", command=self.copy_a4_latex_to_clipboard)
+        self.a4_button.grid(row=7, column=1, pady=10, padx=10, sticky="e")
+
     def open_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
         if file_path:
@@ -99,8 +94,8 @@ class LatexTabellerApp:
 
     def load_excel_data(self, file_path):
         try:
-            # Lade die Excel-Datei
-            self.df = pd.read_excel(file_path, header=0)
+            # Lade die Excel-Datei mit `dtype=str`, um alle Werte exakt wie in Excel dargestellt einzulesen
+            self.df = pd.read_excel(file_path, header=0, dtype=str)
             # Wähle nur die Spalten aus, die ab der 2. Zeile Werte enthalten
             valid_columns = [col for col in self.df.columns if self.df[col].iloc[1:].notna().any()]
             self.df = self.df[valid_columns]
@@ -134,12 +129,14 @@ class LatexTabellerApp:
             entry_1.insert(0, "Formelzeichen")
             entry_1.bind("<FocusIn>", lambda e, entry=entry_1, placeholder="Formelzeichen": self.on_focus_in(entry, placeholder))
             entry_1.bind("<FocusOut>", lambda e, entry=entry_1, placeholder="Formelzeichen": self.on_focus_out(entry, placeholder))
+            entry_1.bind("<KeyRelease>", lambda e, col=i: self.update_tree_header(col))  # Dynamische Aktualisierung
             entry_1.grid(row=i, column=1, padx=5, pady=5)
 
             entry_2 = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=20, fg="grey")
             entry_2.insert(0, "Einheit")
             entry_2.bind("<FocusIn>", lambda e, entry=entry_2, placeholder="Einheit": self.on_focus_in(entry, placeholder))
             entry_2.bind("<FocusOut>", lambda e, entry=entry_2, placeholder="Einheit": self.on_focus_out(entry, placeholder))
+            entry_2.bind("<KeyRelease>", lambda e, col=i: self.update_tree_header(col))  # Dynamische Aktualisierung
             entry_2.grid(row=i, column=2, padx=5, pady=5)
 
             # Eingabefeld für die Beschreibung jedes Formelzeichens mit Platzhaltertext
@@ -156,6 +153,16 @@ class LatexTabellerApp:
         # Zeige die Daten in der Tabelle an
         for _, row in data.iterrows():
             self.tree.insert("", "end", values=list(row))
+
+    def update_tree_header(self, column_index):
+        # Aktualisiert den Tabellen-Header basierend auf den Eingabefeldern für Formelzeichen und Einheit
+        formula_entry, unit_entry = self.additional_entries[column_index]
+        formula = formula_entry.get()
+        unit = unit_entry.get()
+
+        # Setze den Header auf "Formelzeichen / Einheit" falls beide vorhanden sind
+        new_header = f"{formula} / {unit}".strip(" /")
+        self.tree.heading(self.tree["columns"][column_index], text=new_header)
 
     def on_focus_in(self, entry, placeholder):
         if entry.get() == placeholder:
@@ -204,6 +211,15 @@ class LatexTabellerApp:
         else:
             messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
 
+    def copy_a4_latex_to_clipboard(self):
+        self.generate_latex_code(a4_width=True)  # Erzeuge A4-LaTeX-Code
+        if self.a4_latex_code:
+            self.root.clipboard_clear()
+            self.root.clipboard_append(self.a4_latex_code)
+            messagebox.showinfo("Info", "LaTeX Code in A4-Breite wurde kopiert!")
+        else:
+            messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
+
     def save_as_tex(self):
         self.generate_latex_code()
         if self.latex_code:
@@ -215,7 +231,7 @@ class LatexTabellerApp:
         else:
             messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
 
-    def generate_latex_code(self):
+    def generate_latex_code(self, a4_width=False):
         headers = [
             f"{formula_entry.get() if formula_entry.get() != 'Formelzeichen' else ''} / {unit_entry.get() if unit_entry.get() != 'Einheit' else ''}".strip(" /")
             for formula_entry, unit_entry in self.additional_entries
@@ -230,32 +246,35 @@ class LatexTabellerApp:
             if formula_entry.get() != "Formelzeichen" and desc_entry.get() != "Beschreibung" and desc_entry.get()
         ]
 
-        # LaTeX-Struktur
-        self.latex_code = "\\begin{table}[H]\n\\centering\n"
-        
-        # Einfache caption mit allgemeiner Beschreibung und detaillierter Beschreibung kombiniert
-        if general_description or header_descriptions:
-            caption_text = general_description
-            if header_descriptions:
-                caption_text += " \\\\ " + ", ".join(header_descriptions)
-            self.latex_code += f"\\caption{{{caption_text}}}\n"
-        else:
-            self.latex_code += "\\caption{}\n"
+        # LaTeX-Struktur für normale und A4-Version
+        table_body = "\\begin{tabular}{" + "c" * len(headers) + "}\n\\toprule\n"
 
-        self.latex_code += "\\begin{tabular}{" + "c" * len(headers) + "}\\n\\toprule\n"
-        
         # Header-Zeile in den LaTeX-Code einfügen
         header_row = " & ".join(header if header else "" for header in headers) + " \\\\ \n\\midrule\n"
-        self.latex_code += header_row
+        table_body += header_row
 
         # Datenzeilen aus der Tabelle hinzufügen
-        for item in self.tree.get_children():
-            values = self.tree.item(item, "values")
-            row_data = " & ".join(str(value) for value in values) + " \\\\ \n"
-            self.latex_code += row_data
+        for _, row in self.df.iterrows():
+            row_data = " & ".join(row.astype(str)) + " \\\\ \n"
+            table_body += row_data
 
         # Tabelle abschließen
-        self.latex_code += "\\bottomrule\n\\end{tabular}\n\\end{table}"
+        table_body += "\\bottomrule\n\\end{tabular}"
+
+        # Erstelle die vollständige Beschreibung
+        if general_description or header_descriptions:
+            description_text = general_description
+            if header_descriptions:
+                description_text += " \\\\ " + ", ".join(header_descriptions)
+            caption_text = f"\\caption{{{description_text}}}\n"
+        else:
+            caption_text = "\\caption{}\n"
+
+        # Standard LaTeX Code
+        self.latex_code = f"\\begin{{table}}[H]\n\\centering\n{caption_text}{table_body}\n\\end{{table}}"
+
+        # A4-Version mit \resizebox
+        self.a4_latex_code = f"\\begin{{table}}[H]\n\\centering\n{caption_text}\\resizebox{{\\textwidth}}{{!}}{{%\n{table_body}\n}}\n\\end{{table}}"
 
 if __name__ == "__main__":
     root = tk.Tk()
