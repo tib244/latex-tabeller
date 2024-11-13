@@ -233,17 +233,14 @@ class LatexTabellerApp:
         # LaTeX-Struktur
         self.latex_code = "\\begin{table}[H]\n\\centering\n"
         
-        # Füge allgemeine Beschreibung hinzu, falls vorhanden
-        if general_description:
-            self.latex_code += f"\\caption{{{general_description}}}\\\\\n"
+        # Einfache caption mit allgemeiner Beschreibung und detaillierter Beschreibung kombiniert
+        if general_description or header_descriptions:
+            caption_text = general_description
+            if header_descriptions:
+                caption_text += " \\\\ " + ", ".join(header_descriptions)
+            self.latex_code += f"\\caption{{{caption_text}}}\n"
         else:
             self.latex_code += "\\caption{}\n"
-
-        # Füge detaillierte Beschreibung hinzu, falls vorhanden
-        if header_descriptions:
-            self.latex_code += "\\caption{" + ", ".join(header_descriptions) + "}\\n"
-        else:
-            self.latex_code += "\\n"
 
         self.latex_code += "\\begin{tabular}{" + "c" * len(headers) + "}\\n\\toprule\n"
         
