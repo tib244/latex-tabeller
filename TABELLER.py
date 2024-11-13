@@ -82,7 +82,7 @@ class LatexTabellerApp:
         self.save_button.grid(row=7, column=0, pady=10, padx=10, sticky="w")
 
         # Button zum Kopieren des LaTeX-Codes in A4-Breite
-        self.a4_button = ttk.Button(main_frame, text="A4 Breite", command=self.copy_a4_latex_to_clipboard)
+        self.a4_button = ttk.Button(main_frame, text="LaTeX Code kopieren \nA4 Breite", command=self.copy_a4_latex_to_clipboard)
         self.a4_button.grid(row=7, column=1, pady=10, padx=10, sticky="e")
 
     def open_file(self):
