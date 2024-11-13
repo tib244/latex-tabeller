@@ -5,7 +5,6 @@ import pandas as pd
 import os
 import webbrowser
 
-
 class LatexTabellerApp:
     def __init__(self, root):
         self.root = root
@@ -67,21 +66,13 @@ class LatexTabellerApp:
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=4, column=3, sticky="ns")
 
-        # Frame für zusätzliche Eingabefelder unterhalb der Tabelle und oberhalb der Beschreibungstitel
+        # Frame für zusätzliche Eingabefelder unterhalb der Tabelle
         self.additional_frame = tk.Frame(self.root, bg="#ecf0f1")
         self.additional_frame.pack(fill=tk.X, padx=20, pady=(20, 5))  # Extra Padding zum Verschieben
 
-        # Titel für die Eingabefelder unterhalb der Tabelle
-        title_label_formula = tk.Label(self.additional_frame, text="Formelzeichen", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_formula.grid(row=0, column=0, sticky="w", padx=5, pady=(10, 5))
-
-        title_label_unit = tk.Label(self.additional_frame, text="Einheit", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_unit.grid(row=0, column=1, sticky="w", padx=5, pady=(10, 5))
-
-        title_label_description = tk.Label(self.additional_frame, text="Beschreibung", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
-        title_label_description.grid(row=0, column=2, sticky="w", padx=5, pady=(10, 5))
-
-        # Platz für Eingabefelder für Formelzeichen, Einheit und Beschreibung wird in update_table hinzugefügt
+        # Vorschau-Button für die Tabelle
+        self.preview_button = ttk.Button(main_frame, text="Tabelle aktualisieren", command=self.update_table_preview)
+        self.preview_button.grid(row=5, column=0, pady=10, padx=10, sticky="w")
 
         # Buttons unterhalb der Eingabefelder
         self.show_latex_button = ttk.Button(main_frame, text="LaTeX Code anzeigen", command=self.show_latex_code)
@@ -94,45 +85,62 @@ class LatexTabellerApp:
         self.save_button.grid(row=7, column=0, pady=10, padx=10, sticky="w")
 
     def update_table(self, headers, data):
-    # Leere die vorherigen Header-Labels und Eingabefelder
         for widget in self.additional_frame.winfo_children():
             widget.destroy()
         self.header_labels.clear()
         self.additional_entries.clear()
         self.header_descriptions.clear()
 
-    # Header-Labels und Eingabefelder in zusätzlichem Frame hinzufügen
+        title_label_formula = tk.Label(self.additional_frame, text="Formelzeichen", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
+        title_label_formula.grid(row=0, column=1, sticky="w", padx=5, pady=(5, 5))
+
+        title_label_unit = tk.Label(self.additional_frame, text="Einheit", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
+        title_label_unit.grid(row=0, column=2, sticky="w", padx=5, pady=(5, 5))
+
+        title_label_description = tk.Label(self.additional_frame, text="Beschreibung", font=("Helvetica", 10, "bold"), bg="#ecf0f1")
+        title_label_description.grid(row=0, column=3, sticky="w", padx=5, pady=(5, 5))
+
         for i, header in enumerate(headers):
             header_label = tk.Label(self.additional_frame, text=f"{header}:", font=("Helvetica", 10), bg="#ecf0f1")
-            header_label.grid(row=i, column=0, sticky="w", padx=5)
+            header_label.grid(row=i + 1, column=0, sticky="w", padx=5)
 
-        # Zwei Eingabefelder für jeden Header mit Platzhaltertext
             entry_1 = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=20, fg="grey")
             entry_1.insert(0, "Formelzeichen")
             entry_1.bind("<FocusIn>", lambda e, entry=entry_1, placeholder="Formelzeichen": self.on_focus_in(entry, placeholder))
             entry_1.bind("<FocusOut>", lambda e, entry=entry_1, placeholder="Formelzeichen": self.on_focus_out(entry, placeholder))
-            entry_1.grid(row=i, column=1, padx=5, pady=5)
+            entry_1.grid(row=i + 1, column=1, padx=5, pady=5)
 
             entry_2 = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=20, fg="grey")
             entry_2.insert(0, "Einheit")
             entry_2.bind("<FocusIn>", lambda e, entry=entry_2, placeholder="Einheit": self.on_focus_in(entry, placeholder))
             entry_2.bind("<FocusOut>", lambda e, entry=entry_2, placeholder="Einheit": self.on_focus_out(entry, placeholder))
-            entry_2.grid(row=i, column=2, padx=5, pady=5)
+            entry_2.grid(row=i + 1, column=2, padx=5, pady=5)
 
-        # Eingabefeld für die Beschreibung jedes Formelzeichens mit Platzhaltertext
             desc_entry = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=40, fg="grey")
             desc_entry.insert(0, "Beschreibung")
             desc_entry.bind("<FocusIn>", lambda e, entry=desc_entry, placeholder="Beschreibung": self.on_focus_in(entry, placeholder))
             desc_entry.bind("<FocusOut>", lambda e, entry=desc_entry, placeholder="Beschreibung": self.on_focus_out(entry, placeholder))
-            desc_entry.grid(row=i, column=3, padx=5, pady=5)
+            desc_entry.grid(row=i + 1, column=3, padx=5, pady=5)
 
             self.header_labels.append(header_label)
             self.additional_entries.append((entry_1, entry_2))
             self.header_descriptions.append(desc_entry)
 
-    # Zeige die Daten in der Tabelle an
+        self.tree.delete(*self.tree.get_children())
+        self.tree["columns"] = headers
+        for header in headers:
+            self.tree.heading(header, text=header)
+            self.tree.column(header, width=100, anchor="w")
         for _, row in data.iterrows():
             self.tree.insert("", "end", values=list(row))
+
+    def update_table_preview(self):
+        if self.df is not None and not self.df.empty:
+            headers = self.df.columns
+            data = self.df
+            self.update_table(headers, data)
+        else:
+            messagebox.showerror("Fehler", "Die Tabelle ist leer oder ungültig.")
 
     def on_focus_in(self, entry, placeholder):
         if entry.get() == placeholder:
@@ -144,7 +152,6 @@ class LatexTabellerApp:
             entry.insert(0, placeholder)
             entry.config(fg="grey")
 
-
     def open_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
         if file_path:
@@ -154,78 +161,22 @@ class LatexTabellerApp:
 
     def load_excel_data(self, file_path):
         try:
-            # Lade die Excel-Datei
             self.df = pd.read_excel(file_path, header=0)
-            # Wähle nur die Spalten aus, die ab der 2. Zeile Werte enthalten
-            valid_columns = [col for col in self.df.columns if self.df[col].iloc[1:].notna().any()]
-            self.df = self.df[valid_columns]
-
+            if self.df.empty:
+                raise ValueError("Die geladene Excel-Datei ist leer.")
+            self.df = self.df.dropna(how='all', axis=1).iloc[1:].reset_index(drop=True)
             headers = self.df.columns
             data = self.df
 
             self.update_table(headers, data)
 
+        except ValueError as ve:
+            messagebox.showerror("Fehler", f"Fehler beim Laden der Excel-Datei: {str(ve)}")
         except Exception as e:
             messagebox.showerror("Fehler", f"Fehler beim Laden der Excel-Datei: {str(e)}")
 
-    def update_table(self, headers, data):
-        # Leere die vorherigen Header-Labels und Eingabefelder
-        for widget in self.additional_frame.winfo_children():
-            widget.destroy()
-        self.header_labels.clear()
-        self.additional_entries.clear()
-        self.header_descriptions.clear()
-
-        # Aktualisiere Treeview mit den validen Spalten
-        self.tree["columns"] = list(headers)
-
-        # Header-Labels und Eingabefelder in zusätzlichem Frame hinzufügen
-        for i, header in enumerate(headers):
-            header_label = tk.Label(self.additional_frame, text=f"{header}:", font=("Helvetica", 10), bg="#ecf0f1")
-            header_label.grid(row=i, column=0, sticky="w", padx=5)
-
-            # Zwei Eingabefelder für jeden Header
-            entry_1 = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=20)
-            entry_1.grid(row=i, column=1, padx=5, pady=5)
-            entry_2 = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=20)
-            entry_2.grid(row=i, column=2, padx=5, pady=5)
-
-            # Eingabefeld für die Beschreibung jedes Formelzeichens
-            desc_entry = tk.Entry(self.additional_frame, font=("Helvetica", 10), width=40)
-            desc_entry.grid(row=i, column=3, padx=5, pady=5)
-
-            # Verknüpfe die Eingabefelder mit einer Update-Funktion
-            entry_1.bind("<KeyRelease>", lambda e, col=i: self.update_tree_header(col))
-            entry_2.bind("<KeyRelease>", lambda e, col=i: self.update_tree_header(col))
-
-            self.header_labels.append(header_label)
-            self.additional_entries.append((entry_1, entry_2))
-            self.header_descriptions.append(desc_entry)
-
-        # Zeige die Daten in der Tabelle an
-        for _, row in data.iterrows():
-            self.tree.insert("", "end", values=list(row))
-
-    def update_tree_header(self, column_index):
-        # Aktualisiert den Tabellen-Header basierend auf den Eingabefeldern für Formelzeichen und Einheit
-        formula_entry, unit_entry = self.additional_entries[column_index]
-        formula = formula_entry.get()
-        unit = unit_entry.get()
-
-        # Setze den Header auf "Formelzeichen / Einheit" falls beide vorhanden sind
-        new_header = f"{formula} / {unit}".strip(" /")
-        self.tree.heading(self.tree["columns"][column_index], text=new_header)
-
-    def open_formula_html(self):
-        formula_file_path = os.path.join(os.path.dirname(__file__), "latex-formelzeichen-creator.html")
-        webbrowser.open(formula_file_path)
-
-    def open_unit_html(self):
-        unit_file_path = os.path.join(os.path.dirname(__file__), "latex-einheiten-creator.html")
-        webbrowser.open(unit_file_path)
-
     def show_latex_code(self):
-        self.generate_latex_code()  # Generiere den LaTeX-Code basierend auf aktuellen Werten
+        self.generate_latex_code()
         if self.latex_code:
             if self.latex_window is None or not self.latex_window.winfo_exists():
                 self.latex_window = tk.Toplevel(self.root)
@@ -245,7 +196,7 @@ class LatexTabellerApp:
             messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
 
     def copy_to_clipboard(self):
-        self.generate_latex_code()  # Generiere den LaTeX-Code basierend auf aktuellen Werten
+        self.generate_latex_code()
         if self.latex_code:
             self.root.clipboard_clear()
             self.root.clipboard_append(self.latex_code)
@@ -254,7 +205,7 @@ class LatexTabellerApp:
             messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
 
     def save_as_tex(self):
-        self.generate_latex_code()  # Generiere den LaTeX-Code basierend auf aktuellen Werten
+        self.generate_latex_code()
         if self.latex_code:
             save_path = filedialog.asksaveasfilename(defaultextension=".tex", filetypes=[("TeX files", "*.tex")])
             if save_path:
@@ -264,55 +215,51 @@ class LatexTabellerApp:
         else:
             messagebox.showinfo("Info", "Es wurde noch kein LaTeX-Code generiert.")
 
-    
     def generate_latex_code(self):
-        # Erstelle die Header und ignoriere Platzhaltertexte
         headers = [
             f"{formula_entry.get() if formula_entry.get() != 'Formelzeichen' else ''} / {unit_entry.get() if unit_entry.get() != 'Einheit' else ''}".strip(" /")
             for formula_entry, unit_entry in self.additional_entries
         ]
         
-        # Beginne mit dem LaTeX-Code für die Tabelle und Beschreibung
         general_description = self.general_description_entry.get()
         
-        # Beschreibungen mit `Formelzeichen` und `Beschreibung` ignorieren, wenn sie nur Platzhalter sind
         header_descriptions = [
             f"{formula_entry.get()}: {desc_entry.get()}"
             for (formula_entry, unit_entry), desc_entry in zip(self.additional_entries, self.header_descriptions)
             if formula_entry.get() != "Formelzeichen" and desc_entry.get() != "Beschreibung" and desc_entry.get()
         ]
 
-        # LaTeX-Struktur
         self.latex_code = "\\begin{table}[H]\n\\centering\n"
         
-        # Füge allgemeine Beschreibung und Details hinzu
         if general_description:
-            self.latex_code += f"\\caption{{{general_description} \\\\\n"
+            self.latex_code += f"\\caption{{{general_description}}}\\\\\n"
         else:
-            self.latex_code += "\\caption{" 
+            self.latex_code += "\\caption{}\n"
 
-        # Header-Details hinzufügen, falls vorhanden
         if header_descriptions:
-            self.latex_code += ", ".join(header_descriptions) + "}\n"
+            self.latex_code += "\\caption{Details: " + ", ".join(header_descriptions) + "}\\n"
         else:
-            self.latex_code += "}\n"
+            self.latex_code += "\\n"
 
-        self.latex_code += "\\begin{tabular}{" + "c" * len(headers) + "}\n\\toprule\n"
+        self.latex_code += "\\begin{tabular}{" + "c" * len(headers) + "}\\n\\toprule\n"
         
-        # Header-Zeile in den LaTeX-Code einfügen und leere Werte entfernen
         header_row = " & ".join(header if header else "" for header in headers) + " \\\\ \n\\midrule\n"
         self.latex_code += header_row
 
-        # Datenzeilen aus der Tabelle hinzufügen
         for item in self.tree.get_children():
             values = self.tree.item(item, "values")
             row_data = " & ".join(str(value) for value in values) + " \\\\ \n"
             self.latex_code += row_data
 
-        # Tabelle abschließen
         self.latex_code += "\\bottomrule\n\\end{tabular}\n\\end{table}"
 
+    def open_formula_html(self):
+        formula_file_path = os.path.join(os.path.dirname(__file__), "latex-formelzeichen-creator.html")
+        webbrowser.open(formula_file_path)
 
+    def open_unit_html(self):
+        unit_file_path = os.path.join(os.path.dirname(__file__), "latex-einheiten-creator.html")
+        webbrowser.open(unit_file_path)
 
 if __name__ == "__main__":
     root = tk.Tk()
