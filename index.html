@@ -4,41 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LaTeX Tabeller</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            background-color: #ecf0f1;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #f0f0f0;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #ffffff;
         }
         .container {
-            width: 80%;
-            margin: 20px auto;
+            margin-top: 20px;
             padding: 20px;
-            background: #ffffff;
+            background-color: #444;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
         .button {
-            background-color: #3498db;
-            color: white;
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 1.2em;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
             border-radius: 5px;
+            background-color: #5a8ff0;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
         .button:hover {
-            background-color: #2980b9;
+            background-color: #4a7ed0;
         }
-        .input-field {
-            margin-bottom: 15px;
+        .input-field, .header-inputs {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
         }
         .input-label {
-            display: block;
-            margin-bottom: 5px;
             font-weight: bold;
+            color: #f0f0f0;
+        }
+        input, select {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            background-color: #555;
+            color: #f0f0f0;
+            width: 100%;
         }
         .table-container {
             margin-top: 20px;
@@ -49,35 +64,42 @@
             border-collapse: collapse;
         }
         table, th, td {
-            border: 1px solid #2c3e50;
+            border: 1px solid #555;
             padding: 8px;
         }
         th {
-            background-color: #3498db;
+            background-color: #5a8ff0;
             color: white;
+            text-align: center;
         }
         td {
             text-align: center;
+            color: #f0f0f0;
         }
-        .header-inputs {
+        #latexOutput {
+            font-family: monospace;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            color: #f0f0f0;
             margin-top: 20px;
-        }
-        .header-inputs label {
-            font-weight: bold;
-            margin-top: 10px;
+            white-space: pre-wrap;
+            text-align: left;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
+
+    <h1>LaTeX Tabeller</h1>
     <div class="container">
-        <h1>LaTeX Tabeller</h1>
         <div class="input-field">
-            <label class="input-label" for="fileInput">Datei auswählen</label>
+            <label class="input-label" for="fileInput">Datei auswählen:</label>
             <input type="file" id="fileInput">
         </div>
         <div class="input-field">
             <label class="input-label" for="generalDescription">Allgemeine Beschreibung:</label>
-            <input type="text" id="generalDescription" class="input-text" style="width: 80%;">
+            <input type="text" id="generalDescription">
         </div>
         <div>
             <button class="button" onclick="openNewTab('latex-formelzeichen-creator.html')">Formelzeichen einfügen</button>
@@ -92,13 +114,13 @@
             </table>
         </div>
         <div class="header-inputs" id="headerInputs"></div>
-        <div style="margin-top: 20px;">
+        <div>
             <button class="button" onclick="showLatexCode()">LaTeX Code anzeigen</button>
             <button class="button" onclick="copyToClipboard()">LaTeX Code kopieren</button>
             <button class="button" onclick="saveAsTex()">.tex Datei speichern</button>
             <button class="button" onclick="copyA4LatexToClipboard()">LaTeX Code kopieren (A4 Breite)</button>
         </div>
-        <div id="latexOutput" style="margin-top: 20px;"></div>
+        <div id="latexOutput"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
