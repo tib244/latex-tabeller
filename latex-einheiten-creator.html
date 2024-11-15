@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaTeX Einheiten-Creator</title>
+    <title>LaTeX Tabeller</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,13 +15,68 @@
         h1 {
             color: #ffffff;
         }
-        .unit-row {
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .button {
+            margin-top: 10px;
+            background-color: #5a8ff0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #4a7ed0;
+        }
+        .input-field {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #555;
+            padding: 8px;
+        }
+        th {
+            background-color: #5a8ff0;
+            color: white;
+        }
+        td {
+            text-align: center;
+        }
+        .header-inputs {
+            margin-top: 20px;
             display: flex;
             justify-content: center;
             gap: 10px;
+        }
+        .header-inputs label, .header-inputs input {
+            color: #f0f0f0;
+            font-weight: bold;
             margin-top: 10px;
         }
-        .unit-row select, .unit-row input {
+        input, select {
             padding: 10px;
             font-size: 1em;
             border-radius: 5px;
@@ -29,209 +84,233 @@
             background-color: #444;
             color: #f0f0f0;
         }
-        button {
-            margin-top: 20px;
-            padding: 12px 20px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 5px;
-            background-color: #5a8ff0;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #4a7ed0;
-        }
-        #output {
-            margin-top: 20px;
+        #latexOutput {
             font-family: monospace;
             background-color: #444;
             padding: 10px;
             border-radius: 5px;
             color: #f0f0f0;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            text-align: left;
         }
     </style>
 </head>
 <body>
 
-    <h1>LaTeX Einheiten-Creator</h1>
-
-    <div id="unit-rows">
-        <div class="unit-row">
-            <select class="prefix">
-                <option value="">Kein Präfix</option>
-                <option value="\\nano">n (Nano 10⁻⁹)</option>
-                <option value="\\micro">µ (Mikro 10⁻⁶)</option>
-                <option value="\\milli">m (Milli 10⁻³)</option>
-                <option value="\\centi">c (Zenti 10⁻²)</option>
-                <option value="\\deci">d (Dezi 10⁻¹)</option>
-                <option value="\\deca">da (Deka 10¹)</option>
-                <option value="\\hecto">h (Hekto 10²)</option>
-                <option value="\\kilo">k (Kilo 10³)</option>
-                <option value="\\mega">M (Mega 10⁶)</option>
-                <option value="\\yocto">y (Yocto 10⁻²⁴)</option>
-                <option value="\\zepto">z (Zepto 10⁻²¹)</option>
-                <option value="\\atto">a (Atto 10⁻¹⁸)</option>
-                <option value="\\femto">f (Femto 10⁻¹⁵)</option>
-                <option value="\\pico">p (Piko 10⁻¹²)</option>
-                <option value="\\giga">G (Giga 10⁹)</option>
-                <option value="\\tera">T (Tera 10¹²)</option>
-                <option value="\\peta">P (Peta 10¹⁵)</option>
-                <option value="\\exa">E (Exa 10¹⁸)</option>
-                <option value="\\zetta">Z (Zetta 10²¹)</option>
-                <option value="\\yotta">Y (Yotta 10²⁴)</option>                               
-            </select>
-            <select class="unit">
-                <option value="\\meter">m (Meter)</option>
-                <option value="\\gram">g (Gramm)</option>
-                <option value="\\liter">L (Liter)</option>
-                <option value="\\second">s (Sekunde)</option>
-                <option value="\\mole">mol (Mol)</option>
-                <option value="\\joule">J (Joule)</option>
-                <option value="\\kelvin">K (Kelvin)</option>
-                <option value="\\celsius">°C (Grad Celsius)</option>
-                <option value="\\pascal">Pa (Pascal)</option>
-                <option value="\\watt">W (Watt)</option>
-                <option value="\\newton">N (Newton)</option>
-                <option value="\\volt">V (Volt)</option>
-                <option value="\\ampere">A (Ampere)</option>
-                <option value="\\ohm">Ω (Ohm)</option>
-                <option value="\\coulomb">C (Coulomb)</option>
-                <option value="\\farad">F (Farad)</option>
-                <option value="\\henry">H (Henry)</option>
-                <option value="\\tesla">T (Tesla)</option>
-                <option value="\\becquerel">Bq (Becquerel)</option>
-                <option value="\\gray">Gy (Gray)</option>
-                <option value="\\sievert">Sv (Sievert)</option>
-                <option value="\\hertz">Hz (Hertz)</option>
-                <option value="\\lux">lx (Lux)</option>
-                <option value="\\lumen">lm (Lumen)</option>
-                <option value="\\weber">Wb (Weber)</option>
-                <option value="\\candela">cd (Candela)</option>
-                <option value="\\radian">rad (Radiant)</option>
-                <option value="\\steradian">sr (Steradiant)</option>
-                <option value="\\minute">min (Minute)</option>
-                <option value="\\hour">h (Stunde)</option>
-                <option value="\\day">d (Tag)</option>
-                <option value="\\tonne">t (Tonne)</option>                
-            </select>
-            <input type="number" class="exponent" placeholder="Potenz">
-            <button onclick="removeRow(this)">Entfernen</button>
+    <div class="container">
+        <h1>LaTeX Tabeller</h1>
+        <div class="input-field">
+            <label class="input-label" for="fileInput">Datei auswählen</label>
+            <input type="file" id="fileInput">
         </div>
+        <div class="input-field">
+            <label class="input-label" for="generalDescription">Allgemeine Beschreibung:</label>
+            <input type="text" id="generalDescription" style="width: 80%;">
+        </div>
+        <div>
+            <button class="button" onclick="openNewTab('latex-formelzeichen-creator.html')">Formelzeichen einfügen</button>
+            <button class="button" onclick="openNewTab('latex-einheiten-creator.html')">Einheit einfügen</button>
+        </div>
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="header-inputs" id="headerInputs"></div>
+        <div>
+            <button class="button" onclick="showLatexCode()">LaTeX Code anzeigen</button>
+            <button class="button" onclick="copyToClipboard()">LaTeX Code kopieren</button>
+            <button class="button" onclick="saveAsTex()">.tex Datei speichern</button>
+            <button class="button" onclick="copyA4LatexToClipboard()">LaTeX Code kopieren (A4 Breite)</button>
+        </div>
+        <div id="latexOutput"></div>
     </div>
 
-    <button onclick="addRow()">Zeile hinzufügen</button>
-    <button onclick="generateLatexCode()">Generate LaTeX Code</button>
-
-    <div id="output" class="output-field"></div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
-        function addRow() {
-            const rowContainer = document.getElementById("unit-rows");
-            const newRow = document.createElement("div");
-            newRow.classList.add("unit-row");
-
-            newRow.innerHTML = `
-                <select class="prefix">
-                    <option value="">Kein Präfix</option>
-                    <option value="\\nano">n (Nano 10⁻⁹)</option>
-                    <option value="\\micro">µ (Mikro 10⁻⁶)</option>
-                    <option value="\\milli">m (Milli 10⁻³)</option>
-                    <option value="\\centi">c (Zenti 10⁻²)</option>
-                    <option value="\\deci">d (Dezi 10⁻¹)</option>
-                    <option value="\\deca">da (Deka 10¹)</option>
-                    <option value="\\hecto">h (Hekto 10²)</option>
-                    <option value="\\kilo">k (Kilo 10³)</option>
-                    <option value="\\mega">M (Mega 10⁶)</option>
-                    <option value="\\yocto">y (Yocto 10⁻²⁴)</option>
-                    <option value="\\zepto">z (Zepto 10⁻²¹)</option>
-                    <option value="\\atto">a (Atto 10⁻¹⁸)</option>
-                    <option value="\\femto">f (Femto 10⁻¹⁵)</option>
-                    <option value="\\pico">p (Piko 10⁻¹²)</option>
-                    <option value="\\giga">G (Giga 10⁹)</option>
-                    <option value="\\tera">T (Tera 10¹²)</option>
-                    <option value="\\peta">P (Peta 10¹⁵)</option>
-                    <option value="\\exa">E (Exa 10¹⁸)</option>
-                    <option value="\\zetta">Z (Zetta 10²¹)</option>
-                    <option value="\\yotta">Y (Yotta 10²⁴)</option>                               
-                </select>
-                <select class="unit">
-                    <option value="\\meter">m (Meter)</option>
-                    <option value="\\gram">g (Gramm)</option>
-                    <option value="\\liter">L (Liter)</option>
-                    <option value="\\second">s (Sekunde)</option>
-                    <option value="\\mole">mol (Mol)</option>
-                    <option value="\\joule">J (Joule)</option>
-                    <option value="\\kelvin">K (Kelvin)</option>
-                    <option value="\\celsius">°C (Grad Celsius)</option>
-                    <option value="\\pascal">Pa (Pascal)</option>
-                    <option value="\\watt">W (Watt)</option>
-                    <option value="\\newton">N (Newton)</option>
-                    <option value="\\volt">V (Volt)</option>
-                    <option value="\\ampere">A (Ampere)</option>
-                    <option value="\\ohm">Ω (Ohm)</option>
-                    <option value="\\coulomb">C (Coulomb)</option>
-                    <option value="\\farad">F (Farad)</option>
-                    <option value="\\henry">H (Henry)</option>
-                    <option value="\\tesla">T (Tesla)</option>
-                    <option value="\\becquerel">Bq (Becquerel)</option>
-                    <option value="\\gray">Gy (Gray)</option>
-                    <option value="\\sievert">Sv (Sievert)</option>
-                    <option value="\\hertz">Hz (Hertz)</option>
-                    <option value="\\lux">lx (Lux)</option>
-                    <option value="\\lumen">lm (Lumen)</option>
-                    <option value="\\weber">Wb (Weber)</option>
-                    <option value="\\candela">cd (Candela)</option>
-                    <option value="\\radian">rad (Radiant)</option>
-                    <option value="\\steradian">sr (Steradiant)</option>
-                    <option value="\\minute">min (Minute)</option>
-                    <option value="\\hour">h (Stunde)</option>
-                    <option value="\\day">d (Tag)</option>
-                    <option value="\\tonne">t (Tonne)</option>                
-                </select>
-                <input type="number" class="exponent" placeholder="Potenz">
-                <button onclick="removeRow(this)">Entfernen</button>
-            `;
-            rowContainer.appendChild(newRow);
+        function openNewTab(url) {
+            window.open(url, '_blank'); 
         }
 
-        function removeRow(button) {
-            button.parentElement.remove();
+        function showLatexCode() {
+            const latexCode = generateLatexCode();
+            document.getElementById("latexOutput").innerText = latexCode;
         }
 
-        function generateLatexCode() {
-            const rows = document.querySelectorAll(".unit-row");
-            let units = "";
+        function copyToClipboard() {
+            const latexCode = document.getElementById("latexOutput").innerText;
+            navigator.clipboard.writeText(latexCode).then(() => {
+                alert("LaTeX Code wurde kopiert!");
+            }, (err) => {
+                alert("Fehler beim Kopieren des LaTeX Codes");
+            });
+        }
 
-            rows.forEach(row => {
-                const prefix = row.querySelector(".prefix").value;
-                const unit = row.querySelector(".unit").value;
-                const exponent = row.querySelector(".exponent").value;
+        function saveAsTex() {
+            const latexCode = generateLatexCode();
+            const blob = new Blob([latexCode], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.download = "latex_table.tex";
+            link.href = window.URL.createObjectURL(blob);
+            link.click();
+        }
 
-                units += `${prefix}${unit}`;
-                if (exponent && exponent != "1") {
-                    units += `\\tothe{${exponent}} `;
-                } else {
-                    units += " ";
+        function copyA4LatexToClipboard() {
+            const a4LatexCode = generateLatexCode(true);
+            navigator.clipboard.writeText(a4LatexCode).then(() => {
+                alert("LaTeX Code in A4-Breite wurde kopiert!");
+            }, (err) => {
+                alert("Fehler beim Kopieren des LaTeX Codes");
+            });
+        }
+
+        function generateLatexCode(isA4 = false) {
+            let generalDescription = document.getElementById("generalDescription").value;
+            let headerInputs = document.querySelectorAll(".header-inputs .input-group");
+            let headerInfo = [];
+            let tableHeaders = [];
+
+            headerInputs.forEach((group, index) => {
+                let formula = group.querySelector("input[placeholder='Formelzeichen']").value || "";
+                let unit = group.querySelector("input[placeholder='Einheit']").value || "";
+                let description = group.querySelector("input[placeholder='Beschreibung']").value || "";
+                let headerLabel = formula && unit ? `${formula} / ${unit}` : formula || unit;
+
+                tableHeaders.push(headerLabel);
+                if (formula && description) {
+                    headerInfo.push(`${formula}: ${description}`);
                 }
             });
 
-            units = units.replace(/\\\\/g, "\\");  // Entferne doppelte Backslashes
+            let headerText = `\\caption{${generalDescription}`;
+            if (headerInfo.length > 0) {
+                headerText += `\\\\ ${headerInfo.join("; ")}`;
+            }
+            headerText += "}";
 
-            const latexCode = `\\SI{}{${units.trim()}}`;
+            let latexCode = "\\begin{table}[H]\n\\centering\n";
+            latexCode += `${headerText}\n`;
+            if (isA4) {
+                latexCode += "\\setlength{\\tabcolsep}{20pt}% Breite der Tabelle anpassen\n";
+            }
+            latexCode += `\\begin{tabular}{${"c".repeat(tableHeaders.length)}}\n\\toprule\n`;
+            latexCode += `${tableHeaders.join(" & ")} \\\\\n\\midrule\n`;
 
-            // Zeige den generierten LaTeX-Code an
-            document.getElementById("output").innerText = latexCode;
+            let tableRows = document.querySelectorAll("#tableBody tr");
+            tableRows.forEach((row, rowIndex) => {
+                let rowData = Array.from(row.children).map(cell => cell.textContent || "");
+                if (rowIndex === tableRows.length - 1) {
+                    latexCode += `${rowData.join(" & ")} \\\\\n\\bottomrule\n`;
+                } else {
+                    latexCode += `${rowData.join(" & ")} \\\\\n`;
+                }
+            });
 
-            // Kopiere den LaTeX-Code in die Zwischenablage
-            navigator.clipboard.writeText(latexCode).then(() => {
-                alert("LaTeX-Code wurde automatisch in die Zwischenablage kopiert.");
-            }).catch(err => {
-                console.error('Fehler beim Kopieren in die Zwischenablage: ', err);
+            latexCode += "\\end{tabular}\n\\end{table}";
+            return latexCode;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+
+                const jsonSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                populateTable(jsonSheetData);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function populateTable(data) {
+            const tableHeader = document.getElementById("tableHeader");
+            const tableBody = document.getElementById("tableBody");
+            const headerInputs = document.getElementById("headerInputs");
+
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            headerInputs.innerHTML = '';
+
+            if (data.length < 2) return;
+
+            const headers = data[0];
+            const filteredData = data.slice(1).filter(row => row.some(cell => cell !== undefined && cell !== ""));
+
+            const validColumns = headers.map((header, index) => {
+                return filteredData.some(row => row[index] !== undefined && row[index] !== "") ? index : -1;
+            }).filter(index => index !== -1);
+
+            validColumns.forEach((index) => {
+                const headerText = headers[index];
+
+                const th = document.createElement("th");
+                th.textContent = headerText;
+                th.id = `header-${index}`;
+                tableHeader.appendChild(th);
+
+                const inputGroup = document.createElement("div");
+                inputGroup.classList.add("input-group");
+
+                const headerLabel = document.createElement("label");
+                headerLabel.textContent = `${headerText}:`;
+
+                const formulaInput = document.createElement("input");
+                formulaInput.type = "text";
+                formulaInput.placeholder = "Formelzeichen";
+
+                const unitInput = document.createElement("input");
+                unitInput.type = "text";
+                unitInput.placeholder = "Einheit";
+
+                const descriptionInput = document.createElement("input");
+                descriptionInput.type = "text";
+                descriptionInput.placeholder = "Beschreibung";
+
+                formulaInput.addEventListener("input", () => updateHeader(index, formulaInput.value, unitInput.value));
+                unitInput.addEventListener("input", () => updateHeader(index, formulaInput.value, unitInput.value));
+
+                inputGroup.appendChild(headerLabel);
+                inputGroup.appendChild(formulaInput);
+                inputGroup.appendChild(unitInput);
+                inputGroup.appendChild(descriptionInput);
+
+                headerInputs.appendChild(inputGroup);
+            });
+
+            filteredData.forEach(row => {
+                const tr = document.createElement("tr");
+                validColumns.forEach(index => {
+                    const td = document.createElement("td");
+                    td.textContent = row[index] || '';
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
             });
         }
-    </script>
 
+        function updateHeader(index, formula, unit) {
+            const headerCell = document.getElementById(`header-${index}`);
+            if (formula && unit) {
+                headerCell.textContent = `${formula} / ${unit}`;
+            } else if (formula) {
+                headerCell.textContent = formula;
+            } else if (unit) {
+                headerCell.textContent = unit;
+            } else {
+                headerCell.textContent = headerCell.dataset.originalText;
+            }
+        }
+    </script>
 </body>
 </html>
