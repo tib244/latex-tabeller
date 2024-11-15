@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX Tabeller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #ecf0f1;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .input-field {
+            margin-bottom: 15px;
+        }
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+            padding: 8px;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        td {
+            text-align: center;
+        }
+        .header-inputs {
+            margin-top: 20px;
+        }
+        .header-inputs label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LaTeX Tabeller</h1>
+        <div class="input-field">
+            <label class="input-label" for="fileInput">Datei auswählen</label>
+            <input type="file" id="fileInput">
+        </div>
+        <div class="input-field">
+            <label class="input-label" for="generalDescription">Allgemeine Beschreibung:</label>
+            <input type="text" id="generalDescription" class="input-text" style="width: 80%;">
+        </div>
+        <div>
+            <button class="button" onclick="openPopup('latex-formelzeichen-creator.html', 'formulaInput')">Formelzeichen einfügen</button>
+            <button class="button" onclick="openPopup('latex-einheiten-creator.html', 'unitInput')">Einheit einfügen</button>
+        </div>
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="header-inputs" id="headerInputs"></div>
+        <div style="margin-top: 20px;">
+            <button class="button" onclick="showLatexCode()">LaTeX Code anzeigen</button>
+            <button class="button" onclick="copyToClipboard()">LaTeX Code kopieren</button>
+            <button class="button" onclick="saveAsTex()">.tex Datei speichern</button>
+            <button class="button" onclick="copyA4LatexToClipboard()">LaTeX Code kopieren (A4 Breite)</button>
+        </div>
+        <div id="latexOutput" style="margin-top: 20px;"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        function openPopup(url, inputId) {
+            const popup = window.open(url, 'popup', 'width=800,height=600');
+
+            window.addEventListener('message', function(event) {
+                if (event.origin !== window.location.origin) return;
+                document.getElementById(inputId).value = event.data;
+                popup.close();
+            });
+        }
+
+        function showLatexCode() {
+            const latexCode = generateLatexCode();
+            document.getElementById("latexOutput").innerText = latexCode;
+        }
+
+        function copyToClipboard() {
+            const latexCode = document.getElementById("latexOutput").innerText;
+            navigator.clipboard.writeText(latexCode).then(() => {
+                alert("LaTeX Code wurde kopiert!");
+            }, (err) => {
+                alert("Fehler beim Kopieren des LaTeX Codes");
+            });
+        }
+
+        function saveAsTex() {
+            const latexCode = generateLatexCode();
+            const blob = new Blob([latexCode], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.download = "latex_table.tex";
+            link.href = window.URL.createObjectURL(blob);
+            link.click();
+        }
+
+        function copyA4LatexToClipboard() {
+            const a4LatexCode = generateLatexCode(true);
+            navigator.clipboard.writeText(a4LatexCode).then(() => {
+                alert("LaTeX Code in A4-Breite wurde kopiert!");
+            }, (err) => {
+                alert("Fehler beim Kopieren des LaTeX Codes");
+            });
+        }
+
+        function generateLatexCode(isA4 = false) {
+            let generalDescription = document.getElementById("generalDescription").value;
+            let headerInputs = document.querySelectorAll(".header-inputs .input-group");
+            let headerInfo = [];
+            let tableHeaders = [];
+
+            headerInputs.forEach((group, index) => {
+                let formula = group.querySelector("input[placeholder='Formelzeichen']").value || "";
+                let unit = group.querySelector("input[placeholder='Einheit']").value || "";
+                let description = group.querySelector("input[placeholder='Beschreibung']").value || "";
+                let headerLabel = formula && unit ? `${formula} / ${unit}` : formula || unit;
+
+                tableHeaders.push(headerLabel);
+                if (formula && description) {
+                    headerInfo.push(`${formula}: ${description}`);
+                }
+            });
+
+            let headerText = `\\caption{${generalDescription}`;
+            if (headerInfo.length > 0) {
+                headerText += `\\\\ ${headerInfo.join("; ")}`;
+            }
+            headerText += "}";
+
+            let latexCode = "\\begin{table}[H]\n\\centering\n";
+            latexCode += `${headerText}\n`;
+            if (isA4) {
+                latexCode += "\\setlength{\\tabcolsep}{20pt}% Breite der Tabelle anpassen\n";
+            }
+            latexCode += `\\begin{tabular}{${"c".repeat(tableHeaders.length)}}\n\\toprule\n`;
+            latexCode += `${tableHeaders.join(" & ")} \\\\\n\\midrule\n`;
+
+            let tableRows = document.querySelectorAll("#tableBody tr");
+            tableRows.forEach((row, rowIndex) => {
+                let rowData = Array.from(row.children).map(cell => cell.textContent || "");
+                if (rowIndex === tableRows.length - 1) {
+                    latexCode += `${rowData.join(" & ")} \\\\\n\\bottomrule\n`;
+                } else {
+                    latexCode += `${rowData.join(" & ")} \\\\\n`;
+                }
+            });
+
+            latexCode += "\\end{tabular}\n\\end{table}";
+            return latexCode;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect, false);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+
+                const jsonSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                populateTable(jsonSheetData);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function populateTable(data) {
+            const tableHeader = document.getElementById("tableHeader");
+            const tableBody = document.getElementById("tableBody");
+            const headerInputs = document.getElementById("headerInputs");
+
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            headerInputs.innerHTML = '';
+
+            if (data.length < 2) return;
+
+            const headers = data[0];
+            const filteredData = data.slice(1).filter(row => row.some(cell => cell !== undefined && cell !== ""));
+
+            const validColumns = headers.map((header, index) => {
+                return filteredData.some(row => row[index] !== undefined && row[index] !== "") ? index : -1;
+            }).filter(index => index !== -1);
+
+            validColumns.forEach((index) => {
+                const headerText = headers[index];
+
+                const th = document.createElement("th");
+                th.textContent = headerText;
+                th.id = `header-${index}`;
+                tableHeader.appendChild(th);
+
+                const inputGroup = document.createElement("div");
+                inputGroup.classList.add("input-group");
+
+                const headerLabel = document.createElement("label");
+                headerLabel.textContent = `${headerText}:`;
+
+                const formulaInput = document.createElement("input");
+                formulaInput.type = "text";
+                formulaInput.placeholder = "Formelzeichen";
+
+                const unitInput = document.createElement("input");
+                unitInput.type = "text";
+                unitInput.placeholder = "Einheit";
+
+                const descriptionInput = document.createElement("input");
+                descriptionInput.type = "text";
+                descriptionInput.placeholder = "Beschreibung";
+
+                formulaInput.addEventListener("input", () => updateHeader(index, formulaInput.value, unitInput.value));
+                unitInput.addEventListener("input", () => updateHeader(index, formulaInput.value, unitInput.value));
+
+                inputGroup.appendChild(headerLabel);
+                inputGroup.appendChild(formulaInput);
+                inputGroup.appendChild(unitInput);
+                inputGroup.appendChild(descriptionInput);
+
+                headerInputs.appendChild(inputGroup);
+            });
+
+            filteredData.forEach(row => {
+                const tr = document.createElement("tr");
+                validColumns.forEach(index => {
+                    const td = document.createElement("td");
+                    td.textContent = row[index] || '';
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateHeader(index, formula, unit) {
+            const headerCell = document.getElementById(`header-${index}`);
+            if (formula && unit) {
+                headerCell.textContent = `${formula} / ${unit}`;
+            } else if (formula) {
+                headerCell.textContent = formula;
+            } else if (unit) {
+                headerCell.textContent = unit;
+            } else {
+                headerCell.textContent = headerCell.dataset.originalText;
+            }
+        }
+    </script>
+</body>
+</html>
