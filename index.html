@@ -80,8 +80,8 @@
             <input type="text" id="generalDescription" class="input-text" style="width: 80%;">
         </div>
         <div>
-            <button class="button" onclick="openPopup('latex-formelzeichen-creator.html', 'formulaInput')">Formelzeichen einfügen</button>
-            <button class="button" onclick="openPopup('latex-einheiten-creator.html', 'unitInput')">Einheit einfügen</button>
+            <button class="button" onclick="openNewTab('latex-formelzeichen-creator.html', 'formulaInput')">Formelzeichen einfügen</button>
+            <button class="button" onclick="openNewTab('latex-einheiten-creator.html', 'unitInput')">Einheit einfügen</button>
         </div>
         <div class="table-container">
             <table id="dataTable">
@@ -103,13 +103,12 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script>
-        function openPopup(url, inputId) {
-            const popup = window.open(url, 'popup', 'width=800,height=600');
-
+        function openNewTab(url, inputId) {
+            const newTab = window.open(url, '_blank'); // Öffnet in einem neuen Tab
             window.addEventListener('message', function(event) {
                 if (event.origin !== window.location.origin) return;
                 document.getElementById(inputId).value = event.data;
-                popup.close();
+                newTab.close();
             });
         }
 
